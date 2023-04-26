@@ -1,6 +1,8 @@
 from typing import Tuple
 
 from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications.vgg16 import VGG16
+from keras import regularizers
 from tensorflow.keras.layers import (
     AveragePooling2D,
     Conv2D,
@@ -162,6 +164,52 @@ def create_resnet50_model(
     # We don't need to add Input or Rescaling layers to the model because
     # ResNet50 model already have hose layers inside.
     model.add(resnet)
+
+    # Add a flatten layer to convert the output of the model to a 1D array
+    model.add(Flatten())
+
+    # Add a dropout layer with to avoid over-fitting
+    model.add(Dropout(0.5))
+
+    # Add a classification layer with num_classes output units,
+    # followed by a softmax activation function
+    model.add(Dense(num_classes, activation="softmax"))
+
+    # Print a summary of the model architecture
+    print(model.summary())
+
+    return model
+
+def create_vgg16_model(
+    input_shape: Tuple[int, int, int], num_classes: int
+) -> Sequential:
+    """
+    Function to create a convolutional neural network model based on vgg16
+    architecture with transfer learning.
+
+    Args:
+        input_shape (Tuple[int, int, int]): The shape of the input data.
+        num_classes (int): The number of output classes.
+
+    Returns:
+        A Sequential model object.
+    """
+    # TODO
+    vgg16 = VGG16(weights='imagenet', include_top=False, input_shape=input_shape)
+
+    # You shouldn't change the code below
+    # Freeze all layers in the vgg16 model
+    
+    for layer in vgg16.layers:
+        layer.trainable = False
+
+    # Define the model
+    model = Sequential()
+
+    # Add the resnet model to the Sequential model.
+    # We don't need to add Input or Rescaling layers to the model because
+    # vgg16 model already have hose layers inside.
+    model.add(vgg16)
 
     # Add a flatten layer to convert the output of the model to a 1D array
     model.add(Flatten())
